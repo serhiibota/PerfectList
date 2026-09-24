@@ -1,0 +1,103 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-2: #f2f1ee;
+  --ink: #1d1d1f;
+  --ink-2: #4a4a4f;
+  --muted: #8e8e93;
+  --faint: #c7c7cc;
+  --line: rgb(0 0 0 / 0.06);
+  --accent: #2f6bff;
+  --accent-soft: rgb(47 107 255 / 0.1);
+  --danger: #e5484d;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.08);
+  --shadow-float: 0 1px 1px rgb(0 0 0 / 0.04), 0 18px 40px -16px rgb(0 0 0 / 0.22);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #111113;
+  --surface: #1b1b1e;
+  --surface-2: #232327;
+  --ink: #f2f2f3;
+  --ink-2: #c1c1c6;
+  --muted: #8b8b92;
+  --faint: #4a4a50;
+  --line: rgb(255 255 255 / 0.07);
+  --accent: #5b8bff;
+  --accent-soft: rgb(91 139 255 / 0.16);
+  --danger: #ff6369;
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --shadow-float: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 20px 44px -18px rgb(0 0 0 / 0.8);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    min-height: 100dvh;
+    transition: background-color 0.3s ease;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  input,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+  input::placeholder {
+    color: var(--muted);
+    opacity: 0.8;
+  }
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+  ::selection {
+    background: var(--accent-soft);
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
