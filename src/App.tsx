@@ -105,6 +105,7 @@ export default function App() {
                   onRemove={() => api.removeStore(store.id)}
                   onAddItem={(input) => api.addItem(store.id, input)}
                   onToggleItem={api.toggleItem}
+                  onUpdateItem={api.updateItem}
                   onRemoveItem={api.removeItem}
                   onClearCompleted={() => api.clearCompleted(store.id)}
                 />

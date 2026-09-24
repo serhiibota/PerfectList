@@ -185,6 +185,27 @@ export function useShoppingList() {
     [updateActive],
   );
 
+  const updateItem = useCallback(
+    (itemId: string, input: NewItemInput) => {
+      const name = input.name.trim();
+      updateActive((l) => ({
+        ...l,
+        items: l.items.map((i) =>
+          i.id === itemId
+            ? {
+                ...i,
+                name: name || i.name,
+                quantity: input.quantity > 0 ? input.quantity : i.quantity,
+                unit: input.unit,
+                estimatedPrice: input.estimatedPrice,
+              }
+            : i,
+        ),
+      }));
+    },
+    [updateActive],
+  );
+
   const removeItem = useCallback(
     (itemId: string) => updateActive((l) => ({ ...l, items: l.items.filter((i) => i.id !== itemId) })),
     [updateActive],
@@ -211,6 +232,7 @@ export function useShoppingList() {
     removeStore,
     addItem,
     toggleItem,
+    updateItem,
     removeItem,
     clearCompleted,
   };

@@ -14,6 +14,7 @@ interface Props {
   onRemove: () => void;
   onAddItem: (input: NewItemInput) => void;
   onToggleItem: (id: string) => void;
+  onUpdateItem: (id: string, input: NewItemInput) => void;
   onRemoveItem: (id: string) => void;
   onClearCompleted: () => void;
 }
@@ -24,7 +25,8 @@ const LINGER_MS = 650;
 const hueFor = (name: string) => [...name].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 17);
 
 export function StoreCard(props: Props) {
-  const { store, items, onRename, onRemove, onAddItem, onToggleItem, onRemoveItem, onClearCompleted } = props;
+  const { store, items, onRename, onRemove, onAddItem, onToggleItem, onUpdateItem, onRemoveItem, onClearCompleted } =
+    props;
   const [lingering, setLingering] = useState<ReadonlySet<string>>(new Set());
   const [showDone, setShowDone] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -139,13 +141,14 @@ export function StoreCard(props: Props) {
 
       {/* Items */}
       <div className="px-4 pt-1 pb-2">
-        <ul>
+        <ul className="-mx-2">
           <AnimatePresence initial={false}>
             {active.map((item) => (
               <ItemRow
                 key={item.id}
                 item={item}
                 onToggle={() => toggle(item)}
+                onUpdate={(input) => onUpdateItem(item.id, input)}
                 onRemove={() => onRemoveItem(item.id)}
               />
             ))}
@@ -208,7 +211,7 @@ export function StoreCard(props: Props) {
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-                  className="overflow-hidden px-4 pb-2"
+                  className="overflow-hidden px-2 pb-2"
                 >
                   <AnimatePresence initial={false}>
                     {done.map((item) => (
@@ -216,6 +219,7 @@ export function StoreCard(props: Props) {
                         key={item.id}
                         item={item}
                         onToggle={() => toggle(item)}
+                        onUpdate={(input) => onUpdateItem(item.id, input)}
                         onRemove={() => onRemoveItem(item.id)}
                       />
                     ))}
