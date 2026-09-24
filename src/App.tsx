@@ -47,33 +47,39 @@ export default function App() {
     [list.items],
   );
 
+  const share = async (file: File) => {
+    const outcome = await shareFile(file, list.title);
+    if (outcome === 'needs-gesture') {
+      // The browser dropped the tap while rendering — ask for one more tap.
+      showToast('Чек готов', {
+        label: 'Отправить',
+        onClick: () => {
+          setToast(null);
+          void share(file);
+        },
+      });
+      return;
+    }
+    const msg = OUTCOME_MESSAGE[outcome];
+    if (msg) showToast(msg);
+  };
+
   const handleShare = async () => {
     if (!receiptRef.current || exporting) return;
     setExporting(true);
+    let file: File;
     try {
-      const file = await renderReceipt(receiptRef.current, receiptFileName());
-      const outcome = await shareFile(file, list.title);
-      if (outcome === 'needs-gesture') {
-        // The browser dropped the tap while rendering — ask for one more tap.
-        showToast('Чек готов', {
-          label: 'Отправить',
-          onClick: async () => {
-            setToast(null);
-            const second = await shareFile(file, list.title);
-            const msg = second === 'needs-gesture' ? null : OUTCOME_MESSAGE[second];
-            if (msg) showToast(msg);
-          },
-        });
-      } else {
-        const msg = OUTCOME_MESSAGE[outcome];
-        if (msg) showToast(msg);
-      }
+      file = await renderReceipt(receiptRef.current, receiptFileName());
     } catch (err) {
       console.error(err);
       showToast('Не удалось создать изображение');
+      return;
     } finally {
+      // The spinner covers rendering only: on iOS the navigator.share() promise
+      // sometimes never settles after sending to another app (e.g. Telegram).
       setExporting(false);
     }
+    await share(file);
   };
 
   return (
