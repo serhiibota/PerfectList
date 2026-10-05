@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronsUpDown, LoaderCircle, Monitor, Moon, Share, Sun } from 'lucide-react';
-import type { ThemeMode } from '@/hooks/useTheme';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronsUpDown, CloudOff, LoaderCircle, Settings2, Share } from 'lucide-react';
 import { formatDate, formatWeekday, pluralItems } from '@/lib/format';
 
 interface Props {
@@ -9,22 +8,18 @@ interface Props {
   itemCount: number;
   storeCount: number;
   listCount: number;
-  themeMode: ThemeMode;
+  online: boolean;
   exporting: boolean;
   onRename: (title: string) => void;
   onOpenLists: () => void;
-  onCycleTheme: () => void;
+  onOpenSettings: () => void;
   onShare: () => void;
 }
 
-const THEME_ICON = { system: Monitor, light: Sun, dark: Moon } as const;
-const THEME_LABEL = { system: 'Системная тема', light: 'Светлая тема', dark: 'Тёмная тема' } as const;
-
 export function Header(props: Props) {
-  const { title, itemCount, storeCount, listCount, themeMode, exporting } = props;
+  const { title, itemCount, storeCount, listCount, online, exporting } = props;
   const [draft, setDraft] = useState(title);
   useEffect(() => setDraft(title), [title]);
-  const ThemeIcon = THEME_ICON[themeMode];
   const now = Date.now();
 
   const iconButton =
@@ -45,10 +40,8 @@ export function Header(props: Props) {
         </motion.button>
 
         <div className="flex items-center gap-2">
-          <button type="button" onClick={props.onCycleTheme} aria-label={THEME_LABEL[themeMode]} title={THEME_LABEL[themeMode]} className={iconButton}>
-            <motion.span key={themeMode} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }}>
-              <ThemeIcon className="size-[18px]" />
-            </motion.span>
+          <button type="button" onClick={props.onOpenSettings} aria-label="Настройки" className={iconButton}>
+            <Settings2 className="size-[18px]" />
           </button>
           <motion.button
             type="button"
@@ -69,9 +62,25 @@ export function Header(props: Props) {
       </div>
 
       <div className="mt-8 px-1">
-        <p className="text-[13px] font-medium text-muted">
-          <span className="capitalize">{formatWeekday(now)}</span>, {formatDate(now)}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-[13px] font-medium text-muted">
+            <span className="capitalize">{formatWeekday(now)}</span>, {formatDate(now)}
+          </p>
+          <AnimatePresence>
+            {!online && (
+              <motion.span
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                title="Нет сети — всё сохраняется на устройстве"
+                className="flex h-5 items-center gap-1 rounded-full bg-surface-2 px-2 text-[11.5px] font-medium text-ink-2"
+              >
+                <CloudOff className="size-3" strokeWidth={2.4} />
+                Офлайн
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}

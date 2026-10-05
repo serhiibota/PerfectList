@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
 const STORAGE_KEY = 'minimallist:theme';
-const ORDER: ThemeMode[] = ['system', 'light', 'dark'];
 
 const readMode = (): ThemeMode => {
   try {
@@ -37,7 +36,5 @@ export function useTheme() {
     return () => media.removeEventListener('change', apply);
   }, [mode]);
 
-  const cycle = useCallback(() => setMode((m) => ORDER[(ORDER.indexOf(m) + 1) % ORDER.length]), []);
-
-  return { mode, cycle };
+  return { mode, setMode };
 }

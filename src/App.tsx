@@ -2,6 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, LayoutGroup, MotionConfig } from 'framer-motion';
 import { useShoppingList } from '@/hooks/useShoppingList';
 import { useTheme } from '@/hooks/useTheme';
+import { useAppIcon } from '@/hooks/useAppIcon';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 import { sumItems } from '@/lib/format';
 import { receiptFileName, renderReceipt, shareFile, type ShareOutcome } from '@/lib/share';
 import { AddStore } from '@/components/AddStore';
@@ -9,6 +12,7 @@ import { BudgetBar } from '@/components/BudgetBar';
 import { EmptyState } from '@/components/EmptyState';
 import { Header } from '@/components/Header';
 import { ListsSheet } from '@/components/ListsSheet';
+import { SettingsSheet } from '@/components/SettingsSheet';
 import { ReceiptView } from '@/components/ReceiptView';
 import { StoreCard } from '@/components/StoreCard';
 import { Toast, type ToastState } from '@/components/Toast';
@@ -23,7 +27,10 @@ export default function App() {
   const api = useShoppingList();
   const { activeList: list } = api;
   const theme = useTheme();
+  const appIcon = useAppIcon();
+  const online = useOnlineStatus();
   const [listsOpen, setListsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
   const receiptRef = useRef<HTMLDivElement>(null);
@@ -31,6 +38,17 @@ export default function App() {
   const showToast = useCallback((message: string, action?: ToastState['action']) => {
     setToast({ id: Date.now(), message, action });
   }, []);
+
+  // Service worker: precaches the whole app so it opens without a network.
+  const {
+    offlineReady: [justBecameOfflineReady],
+  } = useRegisterSW({ immediate: true });
+  const offlineReady =
+    justBecameOfflineReady || (typeof navigator !== 'undefined' && !!navigator.serviceWorker?.controller);
+
+  useEffect(() => {
+    if (justBecameOfflineReady) showToast('Готово к работе без интернета');
+  }, [justBecameOfflineReady, showToast]);
 
   useEffect(() => {
     if (!toast) return;
@@ -90,11 +108,11 @@ export default function App() {
           itemCount={list.items.length}
           storeCount={list.stores.length}
           listCount={api.lists.length}
-          themeMode={theme.mode}
+          online={online}
           exporting={exporting}
           onRename={api.renameList}
           onOpenLists={() => setListsOpen(true)}
-          onCycleTheme={theme.cycle}
+          onOpenSettings={() => setSettingsOpen(true)}
           onShare={handleShare}
         />
 
@@ -137,6 +155,17 @@ export default function App() {
         onSelect={api.selectList}
         onCreate={() => api.createList()}
         onDelete={api.deleteList}
+      />
+
+      <SettingsSheet
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        themeMode={theme.mode}
+        onThemeChange={theme.setMode}
+        icon={appIcon.icon}
+        onIconChange={appIcon.setIcon}
+        offlineReady={offlineReady}
+        online={online}
       />
 
       <Toast toast={toast} onDismiss={() => setToast(null)} />

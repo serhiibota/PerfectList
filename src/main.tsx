@@ -1,10 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { registerSW } from 'virtual:pwa-register';
 import App from './App';
+import { applyAppIcon, readAppIcon } from './hooks/useAppIcon';
 import './index.css';
 
-registerSW({ immediate: true });
+// Point favicon / home-screen icon / manifest at the chosen icon before anything renders.
+applyAppIcon(readAppIcon());
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
