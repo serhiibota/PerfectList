@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, LayoutGroup, MotionConfig } from 'framer-motion';
 import { useShoppingList } from '@/hooks/useShoppingList';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppIcon } from '@/hooks/useAppIcon';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { sumItems } from '@/lib/format';
@@ -27,7 +26,6 @@ export default function App() {
   const api = useShoppingList();
   const { activeList: list } = api;
   const theme = useTheme();
-  const appIcon = useAppIcon();
   const online = useOnlineStatus();
   const [listsOpen, setListsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -162,8 +160,6 @@ export default function App() {
         onClose={() => setSettingsOpen(false)}
         themeMode={theme.mode}
         onThemeChange={theme.setMode}
-        icon={appIcon.icon}
-        onIconChange={appIcon.setIcon}
         offlineReady={offlineReady}
         online={online}
       />
